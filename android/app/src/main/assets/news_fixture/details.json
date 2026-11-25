@@ -1,0 +1,272 @@
+[
+  {
+    "id": 1,
+    "title": "Tin công nghệ 00001",
+    "summary": "Bản tin tổng quan về thiết bị và dịch vụ số.",
+    "category": "Technology",
+    "published_at": "2026-01-01T00:00:00Z",
+    "image_path": "/v1/images/1",
+    "body": "Bản tin mẫu số 00001 thuộc nhóm công nghệ. Ấn bản tổng quan giới thiệu chủ đề thiết bị và dịch vụ số.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 2,
+    "title": "Tin khoa học 00002",
+    "summary": "Bản tin tổng quan về nghiên cứu và môi trường.",
+    "category": "Science",
+    "published_at": "2026-01-01T00:01:00Z",
+    "image_path": "/v1/images/2",
+    "body": "Bản tin mẫu số 00002 thuộc nhóm khoa học. Ấn bản tổng quan giới thiệu chủ đề nghiên cứu và môi trường.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 3,
+    "title": "Tin kinh doanh 00003",
+    "summary": "Bản tin chuyên đề về thị trường và sản xuất.",
+    "category": "Business",
+    "published_at": "2026-01-01T00:02:00Z",
+    "image_path": "/v1/images/3",
+    "body": "Bản tin mẫu số 00003 thuộc nhóm kinh doanh. Ấn bản chuyên đề giới thiệu chủ đề thị trường và sản xuất.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 4,
+    "title": "Tin văn hóa 00004",
+    "summary": "Bản tin góc nhìn về nghệ thuật và di sản.",
+    "category": "Culture",
+    "published_at": "2026-01-01T00:03:00Z",
+    "image_path": "/v1/images/4",
+    "body": "Bản tin mẫu số 00004 thuộc nhóm văn hóa. Ấn bản góc nhìn giới thiệu chủ đề nghệ thuật và di sản.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 5,
+    "title": "Tin thể thao 00005",
+    "summary": "Bản tin góc nhìn về luyện tập và thi đấu.",
+    "category": "Sports",
+    "published_at": "2026-01-01T00:04:00Z",
+    "image_path": "/v1/images/5",
+    "body": "Bản tin mẫu số 00005 thuộc nhóm thể thao. Ấn bản góc nhìn giới thiệu chủ đề luyện tập và thi đấu.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 6,
+    "title": "Tin công nghệ 00006",
+    "summary": "Bản tin góc nhìn về thiết bị và dịch vụ số.",
+    "category": "Technology",
+    "published_at": "2026-01-01T00:05:00Z",
+    "image_path": "/v1/images/6",
+    "body": "Bản tin mẫu số 00006 thuộc nhóm công nghệ. Ấn bản góc nhìn giới thiệu chủ đề thiết bị và dịch vụ số.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 7,
+    "title": "Tin khoa học 00007",
+    "summary": "Bản tin tổng quan về nghiên cứu và môi trường.",
+    "category": "Science",
+    "published_at": "2026-01-01T00:06:00Z",
+    "image_path": "/v1/images/7",
+    "body": "Bản tin mẫu số 00007 thuộc nhóm khoa học. Ấn bản tổng quan giới thiệu chủ đề nghiên cứu và môi trường.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 8,
+    "title": "Tin kinh doanh 00008",
+    "summary": "Bản tin tổng quan về thị trường và sản xuất.",
+    "category": "Business",
+    "published_at": "2026-01-01T00:07:00Z",
+    "image_path": "/v1/images/8",
+    "body": "Bản tin mẫu số 00008 thuộc nhóm kinh doanh. Ấn bản tổng quan giới thiệu chủ đề thị trường và sản xuất.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 9,
+    "title": "Tin văn hóa 00009",
+    "summary": "Bản tin điểm tin về nghệ thuật và di sản.",
+    "category": "Culture",
+    "published_at": "2026-01-01T00:08:00Z",
+    "image_path": "/v1/images/9",
+    "body": "Bản tin mẫu số 00009 thuộc nhóm văn hóa. Ấn bản điểm tin giới thiệu chủ đề nghệ thuật và di sản.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 10,
+    "title": "Tin thể thao 00010",
+    "summary": "Bản tin tổng quan về luyện tập và thi đấu.",
+    "category": "Sports",
+    "published_at": "2026-01-01T00:09:00Z",
+    "image_path": "/v1/images/10",
+    "body": "Bản tin mẫu số 00010 thuộc nhóm thể thao. Ấn bản tổng quan giới thiệu chủ đề luyện tập và thi đấu.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 11,
+    "title": "Tin công nghệ 00011",
+    "summary": "Bản tin tổng quan về thiết bị và dịch vụ số.",
+    "category": "Technology",
+    "published_at": "2026-01-01T00:10:00Z",
+    "image_path": "/v1/images/11",
+    "body": "Bản tin mẫu số 00011 thuộc nhóm công nghệ. Ấn bản tổng quan giới thiệu chủ đề thiết bị và dịch vụ số.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 12,
+    "title": "Tin khoa học 00012",
+    "summary": "Bản tin tổng quan về nghiên cứu và môi trường.",
+    "category": "Science",
+    "published_at": "2026-01-01T00:11:00Z",
+    "image_path": "/v1/images/12",
+    "body": "Bản tin mẫu số 00012 thuộc nhóm khoa học. Ấn bản tổng quan giới thiệu chủ đề nghiên cứu và môi trường.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 13,
+    "title": "Tin kinh doanh 00013",
+    "summary": "Bản tin góc nhìn về thị trường và sản xuất.",
+    "category": "Business",
+    "published_at": "2026-01-01T00:12:00Z",
+    "image_path": "/v1/images/13",
+    "body": "Bản tin mẫu số 00013 thuộc nhóm kinh doanh. Ấn bản góc nhìn giới thiệu chủ đề thị trường và sản xuất.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 14,
+    "title": "Tin văn hóa 00014",
+    "summary": "Bản tin góc nhìn về nghệ thuật và di sản.",
+    "category": "Culture",
+    "published_at": "2026-01-01T00:13:00Z",
+    "image_path": "/v1/images/14",
+    "body": "Bản tin mẫu số 00014 thuộc nhóm văn hóa. Ấn bản góc nhìn giới thiệu chủ đề nghệ thuật và di sản.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 15,
+    "title": "Tin thể thao 00015",
+    "summary": "Bản tin tổng quan về luyện tập và thi đấu.",
+    "category": "Sports",
+    "published_at": "2026-01-01T00:14:00Z",
+    "image_path": "/v1/images/15",
+    "body": "Bản tin mẫu số 00015 thuộc nhóm thể thao. Ấn bản tổng quan giới thiệu chủ đề luyện tập và thi đấu.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 16,
+    "title": "Tin công nghệ 00016",
+    "summary": "Bản tin góc nhìn về thiết bị và dịch vụ số.",
+    "category": "Technology",
+    "published_at": "2026-01-01T00:15:00Z",
+    "image_path": "/v1/images/16",
+    "body": "Bản tin mẫu số 00016 thuộc nhóm công nghệ. Ấn bản góc nhìn giới thiệu chủ đề thiết bị và dịch vụ số.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 17,
+    "title": "Tin khoa học 00017",
+    "summary": "Bản tin điểm tin về nghiên cứu và môi trường.",
+    "category": "Science",
+    "published_at": "2026-01-01T00:16:00Z",
+    "image_path": "/v1/images/17",
+    "body": "Bản tin mẫu số 00017 thuộc nhóm khoa học. Ấn bản điểm tin giới thiệu chủ đề nghiên cứu và môi trường.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 18,
+    "title": "Tin kinh doanh 00018",
+    "summary": "Bản tin góc nhìn về thị trường và sản xuất.",
+    "category": "Business",
+    "published_at": "2026-01-01T00:17:00Z",
+    "image_path": "/v1/images/18",
+    "body": "Bản tin mẫu số 00018 thuộc nhóm kinh doanh. Ấn bản góc nhìn giới thiệu chủ đề thị trường và sản xuất.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 19,
+    "title": "Tin văn hóa 00019",
+    "summary": "Bản tin điểm tin về nghệ thuật và di sản.",
+    "category": "Culture",
+    "published_at": "2026-01-01T00:18:00Z",
+    "image_path": "/v1/images/19",
+    "body": "Bản tin mẫu số 00019 thuộc nhóm văn hóa. Ấn bản điểm tin giới thiệu chủ đề nghệ thuật và di sản.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 20,
+    "title": "Tin thể thao 00020",
+    "summary": "Bản tin chuyên đề về luyện tập và thi đấu.",
+    "category": "Sports",
+    "published_at": "2026-01-01T00:19:00Z",
+    "image_path": "/v1/images/20",
+    "body": "Bản tin mẫu số 00020 thuộc nhóm thể thao. Ấn bản chuyên đề giới thiệu chủ đề luyện tập và thi đấu.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 21,
+    "title": "Tin công nghệ 00021",
+    "summary": "Bản tin tổng quan về thiết bị và dịch vụ số.",
+    "category": "Technology",
+    "published_at": "2026-01-01T00:20:00Z",
+    "image_path": "/v1/images/21",
+    "body": "Bản tin mẫu số 00021 thuộc nhóm công nghệ. Ấn bản tổng quan giới thiệu chủ đề thiết bị và dịch vụ số.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 22,
+    "title": "Tin khoa học 00022",
+    "summary": "Bản tin góc nhìn về nghiên cứu và môi trường.",
+    "category": "Science",
+    "published_at": "2026-01-01T00:21:00Z",
+    "image_path": "/v1/images/22",
+    "body": "Bản tin mẫu số 00022 thuộc nhóm khoa học. Ấn bản góc nhìn giới thiệu chủ đề nghiên cứu và môi trường.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 23,
+    "title": "Tin kinh doanh 00023",
+    "summary": "Bản tin điểm tin về thị trường và sản xuất.",
+    "category": "Business",
+    "published_at": "2026-01-01T00:22:00Z",
+    "image_path": "/v1/images/23",
+    "body": "Bản tin mẫu số 00023 thuộc nhóm kinh doanh. Ấn bản điểm tin giới thiệu chủ đề thị trường và sản xuất.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 24,
+    "title": "Tin văn hóa 00024",
+    "summary": "Bản tin chuyên đề về nghệ thuật và di sản.",
+    "category": "Culture",
+    "published_at": "2026-01-01T00:23:00Z",
+    "image_path": "/v1/images/24",
+    "body": "Bản tin mẫu số 00024 thuộc nhóm văn hóa. Ấn bản chuyên đề giới thiệu chủ đề nghệ thuật và di sản.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 25,
+    "title": "Tin thể thao 00025",
+    "summary": "Bản tin chuyên đề về luyện tập và thi đấu.",
+    "category": "Sports",
+    "published_at": "2026-01-01T00:24:00Z",
+    "image_path": "/v1/images/25",
+    "body": "Bản tin mẫu số 00025 thuộc nhóm thể thao. Ấn bản chuyên đề giới thiệu chủ đề luyện tập và thi đấu.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 26,
+    "title": "Tin công nghệ 00026",
+    "summary": "Bản tin góc nhìn về thiết bị và dịch vụ số.",
+    "category": "Technology",
+    "published_at": "2026-01-01T00:25:00Z",
+    "image_path": "/v1/images/26",
+    "body": "Bản tin mẫu số 00026 thuộc nhóm công nghệ. Ấn bản góc nhìn giới thiệu chủ đề thiết bị và dịch vụ số.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 27,
+    "title": "Tin khoa học 00027",
+    "summary": "Bản tin góc nhìn về nghiên cứu và môi trường.",
+    "category": "Science",
+    "published_at": "2026-01-01T00:26:00Z",
+    "image_path": "/v1/images/27",
+    "body": "Bản tin mẫu số 00027 thuộc nhóm khoa học. Ấn bản góc nhìn giới thiệu chủ đề nghiên cứu và môi trường.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 28,
+    "title": "Tin kinh doanh 00028",
+    "summary": "Bản tin chuyên đề về thị trường và sản xuất.",
+    "category": "Business",
+    "published_at": "2026-01-01T00:27:00Z",
+    "image_path": "/v1/images/28",
+    "body": "Bản tin mẫu số 00028 thuộc nhóm kinh doanh. Ấn bản chuyên đề giới thiệu chủ đề thị trường và sản xuất.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 29,
+    "title": "Tin văn hóa 00029",
+    "summary": "Bản tin tổng quan về nghệ thuật và di sản.",
+    "category": "Culture",
+    "published_at": "2026-01-01T00:28:00Z",
+    "image_path": "/v1/images/29",
+    "body": "Bản tin mẫu số 00029 thuộc nhóm văn hóa. Ấn bản tổng quan giới thiệu chủ đề nghệ thuật và di sản.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  },
+  {
+    "id": 30,
+    "title": "Tin thể thao 00030",
+    "summary": "Bản tin tổng quan về luyện tập và thi đấu.",
+    "category": "Sports",
+    "published_at": "2026-01-01T00:29:00Z",
+    "image_path": "/v1/images/30",
+    "body": "Bản tin mẫu số 00030 thuộc nhóm thể thao. Ấn bản tổng quan giới thiệu chủ đề luyện tập và thi đấu.\n\nNội dung tổng hợp dùng để kiểm thử hiển thị, tìm kiếm và đọc ngoại tuyến. Đoạn tiếp theo giúp phân biệt phần nội dung chi tiết với bản tóm tắt."
+  }
+]

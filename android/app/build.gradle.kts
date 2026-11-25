@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 tasks.register("prepareKotlinBuildScriptModel") {}
@@ -44,6 +45,10 @@ android {
     buildFeatures { compose = true; buildConfig = true }
 }
 
+kapt {
+    arguments { arg("room.schemaLocation", "$projectDir/schemas") }
+}
+
 dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
@@ -56,5 +61,14 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     implementation(libs.coroutines.android)
+    implementation(libs.paging.runtime)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    kapt(libs.room.compiler)
+    implementation(libs.retrofit)
+    implementation(libs.work.runtime.ktx)
     testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.junit)
 }
