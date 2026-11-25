@@ -1,0 +1,10 @@
+{
+  "seed": 42,
+  "record_count": 10000,
+  "dataset_sha256": "b0adc4ef5b5944f3f9d379536aca8de391b051cb78cfc1a65ff99a31250abf79",
+  "image_bytes_by_width": {
+    "360": 62898336,
+    "720": 131122006,
+    "1080": 216404106
+  }
+}
