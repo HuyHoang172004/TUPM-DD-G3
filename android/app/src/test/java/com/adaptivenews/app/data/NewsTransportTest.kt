@@ -4,8 +4,6 @@ import com.adaptivenews.app.core.contract.ArticleSummary
 import com.adaptivenews.app.core.contract.Mode
 import com.adaptivenews.app.core.contract.Policy
 import com.adaptivenews.app.core.contract.PolicyProvider
-import com.sun.net.httpserver.HttpServer
-import java.net.InetSocketAddress
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -20,9 +18,13 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import okhttp3.Cache
 import okhttp3.CacheControl
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
+import okio.Buffer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -130,25 +132,23 @@ class NewsTransportTest {
         val serverRequests = AtomicInteger()
         val events = CopyOnWriteArrayList<Event>()
         private val payload = ByteArray(8192) { it.toByte() }
-        private val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0).apply {
-            createContext("/") { exchange ->
-                serverRequests.incrementAndGet()
-                try {
-                    exchange.responseHeaders.set("ETag", "\"fixture\"")
-                    exchange.responseHeaders.set("Cache-Control", "public, max-age=3600")
-                    if (exchange.requestHeaders.getFirst("If-None-Match") == "\"fixture\"") {
-                        exchange.sendResponseHeaders(304, -1)
+        private val server = MockWebServer().apply {
+            dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest): MockResponse {
+                    serverRequests.incrementAndGet()
+                    val response = MockResponse()
+                        .setHeader("ETag", "\"fixture\"")
+                        .setHeader("Cache-Control", "public, max-age=3600")
+                    return if (request.getHeader("If-None-Match") == "\"fixture\"") {
+                        response.setResponseCode(304)
                     } else {
-                        exchange.sendResponseHeaders(200, payload.size.toLong())
-                        exchange.responseBody.use { it.write(payload) }
+                        response.setBody(Buffer().write(payload))
                     }
-                } finally {
-                    exchange.close()
                 }
             }
             start()
         }
-        private val base = "http://127.0.0.1:${server.address.port}/".toHttpUrl()
+        private val base = server.url("/")
         val urls = NewsImageUrls(base)
         private val telemetry = DataTelemetry { event, value, _, attrs ->
             events.add(Event(event, value, attrs))
@@ -178,7 +178,7 @@ class NewsTransportTest {
             client.dispatcher.executorService.shutdownNow()
             client.connectionPool.evictAll()
             client.cache?.close()
-            server.stop(0)
+            server.shutdown()
         }
     }
 }

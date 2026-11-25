@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.work.runtime.ktx)
     testImplementation(libs.junit)
+    testImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.junit)
