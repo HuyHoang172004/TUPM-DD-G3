@@ -61,37 +61,39 @@ class NewsDatabaseTest {
     }
 
     @Test
-    fun savedQueryUsesCompositeIndexAndAvoidsAnExplicitSort() = runBlocking(Dispatchers.IO) {
-        withRoom { room ->
-            val db = room.openHelper.writableDatabase
-            val dao = room.articles()
-            room.runInTransaction {
-                val start = Instant.parse("2026-01-01T00:00:00Z")
-                for (i in 1L..512L) {
-                    val summary = ArticleSummary(
-                        i, "Fixture", "Summary", "Technology",
-                        start.plusSeconds(i * 60).toString(), "/v1/images/$i",
-                    )
-                    db.execSQL(
-                        "INSERT INTO saved_articles VALUES (?, ?, ?, ?, ?, ?, ?)",
-                        arrayOf(i, summary.title, summary.summary, summary.category,
-                            summary.publishedAt, summary.imagePath, "Body"),
-                    )
+    fun savedQueryUsesCompositeIndexAndAvoidsAnExplicitSort() {
+        runBlocking(Dispatchers.IO) {
+            withRoom { room ->
+                val db = room.openHelper.writableDatabase
+                val dao = room.articles()
+                room.runInTransaction {
+                    val start = Instant.parse("2026-01-01T00:00:00Z")
+                    for (i in 1L..512L) {
+                        val summary = ArticleSummary(
+                            i, "Fixture", "Summary", "Technology",
+                            start.plusSeconds(i * 60).toString(), "/v1/images/$i",
+                        )
+                        db.execSQL(
+                            "INSERT INTO saved_articles VALUES (?, ?, ?, ?, ?, ?, ?)",
+                            arrayOf(i, summary.title, summary.summary, summary.category,
+                                summary.publishedAt, summary.imagePath, "Body"),
+                        )
+                    }
                 }
+                assertEquals(512, dao.observeSaved().first().size)
+                val withIndex = plan(db)
+                assertTrue(withIndex.contains("index_saved_articles_publishedAt_id", ignoreCase = true))
+                val indexedNs = medianQueryNs(db)
+                db.execSQL("DROP INDEX index_saved_articles_publishedAt_id")
+                val withoutIndex = plan(db)
+                assertTrue(withoutIndex.contains("TEMP B-TREE", ignoreCase = true))
+                val unindexedNs = medianQueryNs(db)
+                Log.i(
+                    "NewsDatabaseTest",
+                    "Saved query on in-memory test rows, median ns with index=$indexedNs " +
+                        "without index=$unindexedNs",
+                )
             }
-            assertEquals(512, dao.observeSaved().first().size)
-            val withIndex = plan(db)
-            assertTrue(withIndex.contains("index_saved_articles_publishedAt_id", ignoreCase = true))
-            val indexedNs = medianQueryNs(db)
-            db.execSQL("DROP INDEX index_saved_articles_publishedAt_id")
-            val withoutIndex = plan(db)
-            assertTrue(withoutIndex.contains("TEMP B-TREE", ignoreCase = true))
-            val unindexedNs = medianQueryNs(db)
-            Log.i(
-                "NewsDatabaseTest",
-                "Saved query on in-memory test rows, median ns with index=$indexedNs " +
-                    "without index=$unindexedNs",
-            )
         }
     }
 

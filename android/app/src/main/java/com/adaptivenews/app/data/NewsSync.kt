@@ -29,6 +29,7 @@ internal fun scheduleNewsSync(
     val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
     policies.policy.map { it.syncMinutes }.distinctUntilChanged().collect { minutes ->
         val request = PeriodicWorkRequestBuilder<NewsSyncWorker>(minutes, TimeUnit.MINUTES)
+            .setInitialDelay(minutes, TimeUnit.MINUTES)
             .setConstraints(constraints)
             .build()
         manager.enqueueUniquePeriodicWork("news-feed-sync", ExistingPeriodicWorkPolicy.UPDATE, request)
@@ -57,13 +58,13 @@ internal class NewsSyncWorker(
 }
 
 class NewsSyncWorkerFactory internal constructor(
-    private val repository: RemoteNewsRepository,
+    private val repository: () -> RemoteNewsRepository,
 ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters,
     ): ListenableWorker? = if (workerClassName == NewsSyncWorker::class.java.name) {
-        NewsSyncWorker(appContext, workerParameters, repository)
+        NewsSyncWorker(appContext, workerParameters, repository())
     } else null
 }

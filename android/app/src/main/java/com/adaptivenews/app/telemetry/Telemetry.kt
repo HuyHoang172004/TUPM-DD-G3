@@ -30,6 +30,7 @@ class Telemetry(
         data class Flush(val result: CompletableDeferred<Unit>) : Command
     }
     private val commands = Channel<Command>(Channel.UNLIMITED)
+    private val runStartedAt = SystemClock.elapsedRealtime()
     val file: File = File(context.filesDir, "telemetry/$runId/events.jsonl")
 
     init {
@@ -74,7 +75,7 @@ class Telemetry(
             .put("scenario_id", scenarioId)
             .put("variant", variant.name)
             .put("event", event)
-            .put("elapsed_ms", SystemClock.elapsedRealtime())
+            .put("elapsed_ms", SystemClock.elapsedRealtime() - runStartedAt)
             .put("mode", mode ?: JSONObject.NULL)
             .put("source", source)
             .put("reason", reason ?: JSONObject.NULL)

@@ -38,7 +38,7 @@ class NewsData(
         .connectTimeout(5, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
         .callTimeout(20, TimeUnit.SECONDS)
-        .retryOnConnectionFailure(false)
+        .retryOnConnectionFailure(true)
         .followRedirects(false)
         .addInterceptor(transport.application)
         .addNetworkInterceptor(transport.network)
@@ -52,7 +52,7 @@ class NewsData(
     val feed = ArticleFeed(repository, policies)
     val imageUrls = NewsImageUrls(baseUrl)
     val imageCalls: Call.Factory get() = client
-    val syncWorkerFactory = NewsSyncWorkerFactory(repository)
+    val syncWorkerFactory = NewsSyncWorkerFactory { repository }
 
     fun prefetcher(screenScope: CoroutineScope) =
         ImagePrefetcher(screenScope, policies, imageUrls, client, usage)

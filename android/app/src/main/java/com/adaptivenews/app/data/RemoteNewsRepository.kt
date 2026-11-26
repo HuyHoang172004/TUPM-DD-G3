@@ -8,6 +8,7 @@ import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -63,8 +64,9 @@ class RemoteNewsRepository internal constructor(
     private suspend fun fetchPage(query: String, cursor: String?, limit: Int): ArticlePage {
         val fetch: suspend () -> ArticlePage = {
             withContext(io) {
-                val response = api.page(query.ifEmpty { null }, cursor, limit)
-                ArticleWire.page(response.readJson()).toDomain()
+                retryTransientRead {
+                    ArticleWire.page(api.page(query.ifEmpty { null }, cursor, limit).readJson()).toDomain()
+                }
             }
         }
         return if (policies.policy.value.optimized) {
@@ -77,7 +79,9 @@ class RemoteNewsRepository internal constructor(
         dao.savedById(id)?.let { return it.toDomain() }
         if (!policies.policy.value.allowNetwork) throw OfflineException()
         val fetch: suspend () -> ArticleDetail = {
-            withContext(io) { ArticleWire.detail(api.detail(id).readJson()).toDomain() }
+            withContext(io) {
+                retryTransientRead { ArticleWire.detail(api.detail(id).readJson()).toDomain() }
+            }
         }
         return if (policies.policy.value.optimized) details.run(id, fetch) else fetch()
     }
@@ -94,6 +98,18 @@ class RemoteNewsRepository internal constructor(
         if (!policy.allowNetwork) return
         val page = fetchPage("", null, policy.pageSize)
         dao.replaceBatch(page.items.map(FeedRow::from))
+    }
+
+    /** A single retry covers a broken reused connection or truncated GET body. */
+    private suspend fun <T> retryTransientRead(read: suspend () -> T): T {
+        try {
+            return read()
+        } catch (failure: IOException) {
+            if (failure is NewsHttpException || failure is OfflineException ||
+                !policies.policy.value.allowNetwork) throw failure
+        }
+        delay(100)
+        return read()
     }
 
     private fun Response<ResponseBody>.readJson(): String {

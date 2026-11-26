@@ -1,6 +1,5 @@
 package com.adaptivenews.app.ui
 
-import android.os.Build
 import android.os.SystemClock
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
@@ -17,8 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -29,11 +28,9 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +50,9 @@ import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.adaptivenews.app.core.contract.ArticleSummary
 import com.adaptivenews.app.core.contract.LinkQuality
 import com.adaptivenews.app.core.contract.MemoryPressure
@@ -60,6 +60,7 @@ import com.adaptivenews.app.core.contract.Policy
 import com.adaptivenews.app.core.contract.ResourceSnapshot
 import com.adaptivenews.app.core.contract.Thermal
 import com.adaptivenews.app.core.contract.Variant
+import com.adaptivenews.app.data.NewsImageUrls
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -74,8 +75,9 @@ fun AdaptiveNewsApp(
     val screen by viewModel.screen.collectAsState()
     val policy by viewModel.controller.policy.collectAsState()
     val context = LocalContext.current
-    val imageLoader = remember(policy.memoryCacheBytes) { ImageLoaderHolder.get(context, policy.memoryCacheBytes) }
-    SideEffect { ImageLoaderHolder.applyRequestLimit(policy.maxConcurrentRequests) }
+    val imageLoader = remember(policy.memoryCacheBytes, viewModel.newsData.imageCalls) {
+        ImageLoaderHolder.get(context, policy.memoryCacheBytes, viewModel.newsData.imageCalls)
+    }
     val topLevel = listOf(AppScreen.FEED, AppScreen.SEARCH, AppScreen.SAVED, AppScreen.LAB)
 
     MaterialTheme {
@@ -84,7 +86,7 @@ fun AdaptiveNewsApp(
             topBar = {
                 Column(Modifier.fillMaxWidth().padding(16.dp)) {
                     Text("Adaptive News", style = MaterialTheme.typography.headlineSmall)
-                    Text("${viewModel.variant} · ${policy.mode} · ${if (viewModel.isFixture) "Fixture UI 30 bài" else "Backend"}",
+                    Text("${viewModel.variant} · ${policy.mode} · Backend",
                         style = MaterialTheme.typography.bodySmall)
                 }
             },
@@ -133,35 +135,83 @@ private fun FeedScreen(viewModel: AppViewModel, search: Boolean, policy: Policy,
     val query by viewModel.query.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
-    val listState = rememberLazyListState()
-    LaunchedEffect(listState.firstVisibleItemIndex, articles.size, loading) {
-        if (!loading && articles.isNotEmpty() && listState.firstVisibleItemIndex >= articles.size - 5) viewModel.loadMore()
-    }
+    val listState = remember(search) { LazyListState() }
+    LaunchedEffect(query, search) { listState.scrollToItem(0) }
     Column {
         if (search) OutlinedTextField(
             value = query, onValueChange = viewModel::setQuery,
             label = { Text("Tìm theo tiêu đề") }, singleLine = true,
             modifier = Modifier.fillMaxWidth().padding(12.dp).testTag("search_input")
         )
-        if (error != null) Text(error ?: "", color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(12.dp))
-        if (!loading && articles.isEmpty() && error == null) Text("Không có bài viết", modifier = Modifier.padding(16.dp))
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize().testTag(if (search) "search_results" else "feed_list")
-        ) {
-            items(
-                articles,
-                key = if (viewModel.variant == Variant.V1) null else ({ article: ArticleSummary -> article.id }),
-                contentType = { if (viewModel.variant == Variant.V1) null else "article" }
-            ) { article ->
-                ArticleCard(article, policy, imageLoader, viewModel.isFixture,
-                    onImageVisible = { elapsed, cacheSource -> viewModel.telemetry.record(
-                        "image_visible", mode = policy.mode.name, value = elapsed, unit = "ms",
-                        attrs = mapOf("article_id" to article.id, "cache_source" to cacheSource)
-                    ) }, onClick = { viewModel.openArticle(article.id) })
+        if (viewModel.variant == Variant.V1) {
+            LaunchedEffect(listState.firstVisibleItemIndex, articles.size, loading) {
+                if (!loading && articles.isNotEmpty() && listState.firstVisibleItemIndex >= articles.size - 5) viewModel.loadMore()
             }
-            if (loading) item(contentType = "loading") {
-                Box(Modifier.fillMaxWidth().padding(20.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+            if (error != null) {
+                Text(error ?: "", color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(12.dp))
+                OutlinedButton(onClick = { viewModel.refresh() }, modifier = Modifier.padding(12.dp)) {
+                    Text("Thử lại")
+                }
+            }
+            if (!loading && articles.isEmpty() && error == null) Text("Không có bài viết", modifier = Modifier.padding(16.dp))
+            LazyColumn(state = listState,
+                modifier = Modifier.fillMaxSize().testTag(if (search) "search_results" else "feed_list")) {
+                items(articles) { article ->
+                    ArticleCard(article, policy, imageLoader, viewModel.newsData.imageUrls,
+                        onImageVisible = { elapsed, cacheSource ->
+                            viewModel.imageDisplayed(article, policy.imageWidth)
+                            viewModel.telemetry.record("image_visible", mode = policy.mode.name,
+                                value = elapsed, unit = "ms",
+                                attrs = mapOf("article_id" to article.id, "cache_source" to cacheSource))
+                        }, onClick = { viewModel.openArticle(article.id) })
+                }
+                if (loading) item(contentType = "loading") {
+                    Box(Modifier.fillMaxWidth().padding(20.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                }
+            }
+        } else {
+            val paging = viewModel.pagedItems.collectAsLazyPagingItems()
+            val refresh = paging.loadState.refresh
+            LaunchedEffect(refresh, paging.itemCount) {
+                if (refresh is LoadState.NotLoading) viewModel.onPagedReady()
+            }
+            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+            LaunchedEffect(search, lastVisible, paging.itemCount, policy.imageWidth, policy.prefetchCount) {
+                val upcoming = if (lastVisible < 0) emptyList() else
+                    ((lastVisible + 1) until minOf(paging.itemCount, lastVisible + 1 + policy.prefetchCount))
+                        .mapNotNull(paging::peek)
+                viewModel.updatePrefetch(upcoming)
+            }
+            if (refresh is LoadState.Error) {
+                Text(refresh.error.message ?: "Không thể tải bài viết",
+                    color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(12.dp))
+                OutlinedButton(onClick = paging::retry, modifier = Modifier.padding(12.dp)) {
+                    Text("Thử lại")
+                }
+            }
+            if (refresh is LoadState.NotLoading && paging.itemCount == 0)
+                Text("Không có bài viết", modifier = Modifier.padding(16.dp))
+            LazyColumn(state = listState,
+                modifier = Modifier.fillMaxSize().testTag(if (search) "search_results" else "feed_list")) {
+                items(count = paging.itemCount, key = paging.itemKey { it.id },
+                    contentType = { "article" }) { index ->
+                    paging[index]?.let { article ->
+                        ArticleCard(article, policy, imageLoader, viewModel.newsData.imageUrls,
+                            onImageVisible = { elapsed, cacheSource ->
+                                viewModel.imageDisplayed(article, policy.imageWidth)
+                                viewModel.telemetry.record("image_visible", mode = policy.mode.name,
+                                    value = elapsed, unit = "ms",
+                                    attrs = mapOf("article_id" to article.id, "cache_source" to cacheSource))
+                            }, onClick = { viewModel.openArticle(article.id) })
+                    }
+                }
+                if (paging.loadState.append is LoadState.Loading || refresh is LoadState.Loading)
+                    item(contentType = "loading") {
+                        Box(Modifier.fillMaxWidth().padding(20.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                    }
+                if (paging.loadState.append is LoadState.Error) item(contentType = "retry") {
+                    OutlinedButton(onClick = paging::retry) { Text("Thử tải tiếp") }
+                }
             }
         }
     }
@@ -170,13 +220,13 @@ private fun FeedScreen(viewModel: AppViewModel, search: Boolean, policy: Policy,
 @Composable
 private fun ArticleCard(
     article: ArticleSummary, policy: Policy, imageLoader: coil3.ImageLoader,
-    fixture: Boolean, onImageVisible: (Long, String) -> Unit, onClick: () -> Unit
+    imageUrls: NewsImageUrls, onImageVisible: (Long, String) -> Unit, onClick: () -> Unit
 ) {
     val animationModifier = if (policy.animations) Modifier.animateContentSize() else Modifier
     Card(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp)
         .then(animationModifier).testTag("article_${article.id}").clickable(onClick = onClick)) {
         Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            ArticleImage(article, policy, imageLoader, fixture, Modifier.size(88.dp), onImageVisible)
+            ArticleImage(article, policy, imageLoader, imageUrls, Modifier.size(88.dp), onImageVisible)
             Column {
                 Text(article.title, style = MaterialTheme.typography.titleMedium)
                 Text(article.category, style = MaterialTheme.typography.labelSmall)
@@ -190,19 +240,12 @@ private fun ArticleCard(
 @Composable
 private fun ArticleImage(
     article: ArticleSummary, policy: Policy, imageLoader: coil3.ImageLoader,
-    fixture: Boolean, modifier: Modifier, onImageVisible: (Long, String) -> Unit
+    imageUrls: NewsImageUrls, modifier: Modifier, onImageVisible: (Long, String) -> Unit
 ) {
-    if (fixture) {
-        Surface(modifier.clip(RoundedCornerShape(8.dp)), color = MaterialTheme.colorScheme.secondaryContainer) {
-            Box(contentAlignment = Alignment.Center) { Text(article.category.take(1)) }
-        }
-        return
-    }
     val context = LocalContext.current
     val boundAt = remember(article.id, policy.imageWidth) { SystemClock.elapsedRealtime() }
     var logged by remember(article.id, policy.imageWidth) { mutableStateOf(false) }
-    val baseUrl = if (Build.FINGERPRINT.contains("generic", ignoreCase = true)) "http://10.0.2.2:8000" else "http://127.0.0.1:8000"
-    val url = "$baseUrl${article.imagePath}?width=${policy.imageWidth}"
+    val url = imageUrls.url(article, policy.imageWidth).toString()
     val request = remember(url, policy.allowNetwork, policy.animations) {
         ImageRequest.Builder(context).data(url).crossfade(policy.animations)
             .networkCachePolicy(if (policy.allowNetwork) CachePolicy.ENABLED else CachePolicy.DISABLED).build()
@@ -228,6 +271,7 @@ private fun DetailScreen(viewModel: AppViewModel, policy: Policy, imageLoader: c
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (error == null) CircularProgressIndicator() else Column {
                 Text(error ?: "Không thể mở bài viết", color = MaterialTheme.colorScheme.error)
+                OutlinedButton(onClick = viewModel::retryDetail) { Text("Thử lại") }
                 OutlinedButton(onClick = { viewModel.navigate(AppScreen.FEED) }) { Text("Về danh sách") }
             }
         }
@@ -239,7 +283,7 @@ private fun DetailScreen(viewModel: AppViewModel, policy: Policy, imageLoader: c
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(article.article.title, style = MaterialTheme.typography.headlineMedium)
                 Text(article.article.category, style = MaterialTheme.typography.labelMedium)
-                ArticleImage(article.article, policy, imageLoader, viewModel.isFixture,
+                ArticleImage(article.article, policy, imageLoader, viewModel.newsData.imageUrls,
                     Modifier.fillMaxWidth().height(200.dp), onImageVisible = { _, _ -> })
                 Button(onClick = viewModel::toggleSave, modifier = Modifier.testTag("save_button")) {
                     Text(if (saved.any { it.article.id == article.article.id }) "Bỏ lưu" else "Lưu bài")
@@ -256,7 +300,7 @@ private fun SavedScreen(viewModel: AppViewModel, policy: Policy, imageLoader: co
     if (saved.isEmpty()) { Text("Chưa có bài đã lưu", Modifier.padding(16.dp).testTag("saved_list")); return }
     LazyColumn(Modifier.fillMaxSize().testTag("saved_list")) {
         items(saved, key = { it.article.id }, contentType = { "saved_article" }) { detail ->
-            ArticleCard(detail.article, policy, imageLoader, viewModel.isFixture,
+            ArticleCard(detail.article, policy, imageLoader, viewModel.newsData.imageUrls,
                 onImageVisible = { _, _ -> }, onClick = { viewModel.openArticle(detail.article.id) })
         }
     }
@@ -312,8 +356,6 @@ private fun LabScreen(
             OutlinedButton(onClick = onResetImageCache) { Text("Reset cache ảnh") }
             OutlinedButton(onClick = onResetAllData) { Text("Reset dữ liệu") }
         }
-        if (viewModel.isFixture) Text("Dữ liệu fixture chỉ để phát triển UI; không dùng làm kết quả thực nghiệm.",
-            style = MaterialTheme.typography.bodySmall)
     }
 }
 

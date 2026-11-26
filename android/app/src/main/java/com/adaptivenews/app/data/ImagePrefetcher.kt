@@ -6,6 +6,7 @@ import java.io.IOException
 import kotlin.coroutines.resume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
@@ -68,6 +69,9 @@ class ImagePrefetcher internal constructor(
     fun clear() = update(emptyList())
 
     override fun close() = observer.cancel()
+
+    /** Wait until all child downloads have been cancelled before clearing shared caches. */
+    suspend fun stop() = observer.cancelAndJoin()
 
     private suspend fun download(url: HttpUrl) {
         val key = url.toString()
