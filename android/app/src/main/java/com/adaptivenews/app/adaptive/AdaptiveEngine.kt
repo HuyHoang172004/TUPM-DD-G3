@@ -23,6 +23,7 @@ class AdaptiveEngine(private val variant: Variant) {
         if (variant == Variant.V2) return balanced(snapshot)
 
         val candidate = chooseMode(snapshot)
+        if (!com.adaptivenews.app.experiment.Experiment.bool("hysteresis", true)) mode = candidate
         if (candidate == mode) {
             pendingMode = null
             consecutiveSamples = 0

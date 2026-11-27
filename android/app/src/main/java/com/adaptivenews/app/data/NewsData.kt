@@ -70,6 +70,16 @@ class NewsData(
 
     fun resetPrefetchUsage() = usage.reset()
 
+    /** Benchmark boundary: consume/cancel outstanding calls before flushing telemetry. */
+    suspend fun quiesceNetwork() = withContext(Dispatchers.IO) {
+        client.dispatcher.cancelAll()
+        repeat(40) {
+            if (client.dispatcher.runningCallsCount() == 0 && client.dispatcher.queuedCallsCount() == 0) return@withContext
+            kotlinx.coroutines.delay(50)
+        }
+        check(client.dispatcher.runningCallsCount() == 0) { "Network did not quiesce" }
+    }
+
     /** For tests or explicit process-graph teardown, after UI and workers have been stopped. */
     suspend fun close() = withContext(Dispatchers.IO) {
         scope.cancel()

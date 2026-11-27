@@ -56,7 +56,7 @@ object RepositoryBinding {
         articleSignal = signal
         policyJob = activityScope.launch { controller.policy.collect { policyState.value = it } }
         val bound = data(context)
-        if (syncJob == null) syncJob = bound.startSync(processScope)
+        if (syncJob == null && com.adaptivenews.app.experiment.Experiment.bool("sync_enabled", true)) syncJob = bound.startSync(processScope)
         return bound
     }
 
@@ -66,7 +66,7 @@ object RepositoryBinding {
         if (!::policyState.isInitialized) policyState = MutableStateFlow(initialPolicy(context))
         return graph ?: NewsData(
             context,
-            (if (Build.HARDWARE.contains("ranchu", ignoreCase = true) ||
+            (if (com.adaptivenews.app.experiment.Experiment.active) "http://10.0.2.2:8001/" else if (Build.HARDWARE.contains("ranchu", ignoreCase = true) ||
                 Build.HARDWARE.contains("goldfish", ignoreCase = true) ||
                 Build.FINGERPRINT.contains("generic", ignoreCase = true))
                 "http://10.0.2.2:8000/" else "http://127.0.0.1:8000/").toHttpUrl(),

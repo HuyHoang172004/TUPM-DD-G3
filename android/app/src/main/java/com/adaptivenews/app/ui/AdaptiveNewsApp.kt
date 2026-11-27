@@ -35,6 +35,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -50,6 +51,8 @@ import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import coil3.size.Size
+import com.adaptivenews.app.experiment.Experiment
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
@@ -94,6 +97,7 @@ fun AdaptiveNewsApp(
                 NavigationBar {
                     topLevel.forEach { item ->
                         NavigationBarItem(
+                            modifier = Modifier.testTag("nav_${item.name.lowercase()}"),
                             selected = screen == item,
                             onClick = { viewModel.navigate(item) },
                             icon = { Text(when (item) {
@@ -143,7 +147,10 @@ private fun FeedScreen(viewModel: AppViewModel, search: Boolean, policy: Policy,
             label = { Text("Tìm theo tiêu đề") }, singleLine = true,
             modifier = Modifier.fillMaxWidth().padding(12.dp).testTag("search_input")
         )
-        if (viewModel.variant == Variant.V1) {
+        if (viewModel.useEager) {
+            LaunchedEffect(articles.isNotEmpty()) {
+                if (articles.isNotEmpty()) viewModel.onEagerPresented()
+            }
             LaunchedEffect(listState.firstVisibleItemIndex, articles.size, loading) {
                 if (!loading && articles.isNotEmpty() && listState.firstVisibleItemIndex >= articles.size - 5) viewModel.loadMore()
             }
@@ -156,7 +163,9 @@ private fun FeedScreen(viewModel: AppViewModel, search: Boolean, policy: Policy,
             if (!loading && articles.isEmpty() && error == null) Text("Không có bài viết", modifier = Modifier.padding(16.dp))
             LazyColumn(state = listState,
                 modifier = Modifier.fillMaxSize().testTag(if (search) "search_results" else "feed_list")) {
-                items(articles) { article ->
+                items(articles,
+                    key = if (Experiment.bool("stable_keys", false)) ({ article: ArticleSummary -> article.id }) else null,
+                    contentType = { if (Experiment.bool("stable_keys", false)) "article" else null }) { article ->
                     ArticleCard(article, policy, imageLoader, viewModel.newsData.imageUrls,
                         onImageVisible = { elapsed, cacheSource ->
                             viewModel.imageDisplayed(article, policy.imageWidth)
@@ -172,8 +181,16 @@ private fun FeedScreen(viewModel: AppViewModel, search: Boolean, policy: Policy,
         } else {
             val paging = viewModel.pagedItems.collectAsLazyPagingItems()
             val refresh = paging.loadState.refresh
+            var sawRefreshLoading by remember(search) { mutableStateOf(false) }
             LaunchedEffect(refresh, paging.itemCount) {
-                if (refresh is LoadState.NotLoading) viewModel.onPagedReady()
+                if (refresh is LoadState.Loading) sawRefreshLoading = true
+                if (refresh is LoadState.NotLoading) {
+                    if (paging.itemCount > 0) viewModel.onFeedPresented()
+                    if (sawRefreshLoading) {
+                        viewModel.onPagedReady()
+                        sawRefreshLoading = false
+                    }
+                }
             }
             val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
             LaunchedEffect(search, lastVisible, paging.itemCount, policy.imageWidth, policy.prefetchCount) {
@@ -193,8 +210,8 @@ private fun FeedScreen(viewModel: AppViewModel, search: Boolean, policy: Policy,
                 Text("Không có bài viết", modifier = Modifier.padding(16.dp))
             LazyColumn(state = listState,
                 modifier = Modifier.fillMaxSize().testTag(if (search) "search_results" else "feed_list")) {
-                items(count = paging.itemCount, key = paging.itemKey { it.id },
-                    contentType = { "article" }) { index ->
+                items(count = paging.itemCount, key = if (Experiment.bool("stable_keys", true)) paging.itemKey { it.id } else null,
+                    contentType = { if (Experiment.bool("stable_keys", true)) "article" else null }) { index ->
                     paging[index]?.let { article ->
                         ArticleCard(article, policy, imageLoader, viewModel.newsData.imageUrls,
                             onImageVisible = { elapsed, cacheSource ->
@@ -222,6 +239,9 @@ private fun ArticleCard(
     article: ArticleSummary, policy: Policy, imageLoader: coil3.ImageLoader,
     imageUrls: NewsImageUrls, onImageVisible: (Long, String) -> Unit, onClick: () -> Unit
 ) {
+    if (Experiment.active) SideEffect {
+        com.adaptivenews.app.experiment.ExperimentRuntime.compositions.incrementAndGet()
+    }
     val animationModifier = if (policy.animations) Modifier.animateContentSize() else Modifier
     Card(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp)
         .then(animationModifier).testTag("article_${article.id}").clickable(onClick = onClick)) {
@@ -246,10 +266,19 @@ private fun ArticleImage(
     val boundAt = remember(article.id, policy.imageWidth) { SystemClock.elapsedRealtime() }
     var logged by remember(article.id, policy.imageWidth) { mutableStateOf(false) }
     val url = imageUrls.url(article, policy.imageWidth).toString()
-    val request = remember(url, policy.allowNetwork, policy.animations) {
+    val makeRequest = {
         ImageRequest.Builder(context).data(url).crossfade(policy.animations)
+            .apply {
+                if (Experiment.isolated) {
+                    diskCachePolicy(CachePolicy.DISABLED)
+                    memoryCachePolicy(if (Experiment.bool("memory_cache", false)) CachePolicy.ENABLED else CachePolicy.DISABLED)
+                    if (Experiment.bool("decode_original", false)) size(Size.ORIGINAL)
+                }
+            }
             .networkCachePolicy(if (policy.allowNetwork) CachePolicy.ENABLED else CachePolicy.DISABLED).build()
     }
+    val request = if (Experiment.bool("memoize_requests", true))
+        remember(url, policy.allowNetwork, policy.animations) { makeRequest() } else makeRequest()
     AsyncImage(
         model = request, imageLoader = imageLoader, contentDescription = article.title,
         contentScale = ContentScale.Crop, modifier = modifier.clip(RoundedCornerShape(8.dp)),
@@ -327,6 +356,7 @@ private fun LabScreen(
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp).testTag("lab_screen"),
         verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("Thiết lập thí nghiệm", style = MaterialTheme.typography.titleLarge)
+        if (Experiment.active) Text("Workload: ${Experiment.config.optString("method_id")} · nhánh ${Experiment.config.optString("arm")}")
         Text("Phiên bản: ${viewModel.variant}")
         Row(Modifier.fillMaxWidth().testTag("variant_selector"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Variant.entries.forEach { v ->

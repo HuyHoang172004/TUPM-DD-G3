@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+.npm-cache/
+dashboard/dist/
+experiments/raw/
+experiments/processed/
+experiments/*.sqlite*
+backend/generated/
+backend/.dataset-*/
+dashboard/test-results/
+dashboard/playwright-report/
+.lab/
+android/local.properties
+android/.gradle/
+android/**/build/

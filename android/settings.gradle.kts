@@ -14,3 +14,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "AdaptiveNews"
 include(":app")
+include(":benchmark")

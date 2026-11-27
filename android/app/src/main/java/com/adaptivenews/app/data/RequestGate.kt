@@ -55,4 +55,6 @@ internal class RequestGate(private val policies: PolicyProvider) {
         active.remove(call)
         changed.signalAll()
     }
+
+    fun activeCount(): Int = lock.withLock { active.size }
 }

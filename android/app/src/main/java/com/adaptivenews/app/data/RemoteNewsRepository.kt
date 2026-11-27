@@ -69,21 +69,26 @@ class RemoteNewsRepository internal constructor(
                 }
             }
         }
-        return if (policies.policy.value.optimized) {
+        return if (policies.policy.value.optimized && com.adaptivenews.app.experiment.Experiment.bool("dedup", true)) {
             pages.run(PageKey(query, cursor, limit), fetch)
         } else fetch()
     }
 
     override suspend fun detail(id: Long): ArticleDetail {
         require(id > 0)
-        dao.savedById(id)?.let { return it.toDomain() }
+        dao.savedById(id)?.let {
+            if (com.adaptivenews.app.experiment.Experiment.active &&
+                com.adaptivenews.app.experiment.ExperimentRuntime.offlineAcknowledged)
+                com.adaptivenews.app.experiment.ExperimentRuntime.telemetry?.record("offline_result", attrs = mapOf("success" to true, "id" to id, "source" to "Room"))
+            return it.toDomain()
+        }
         if (!policies.policy.value.allowNetwork) throw OfflineException()
         val fetch: suspend () -> ArticleDetail = {
             withContext(io) {
                 retryTransientRead { ArticleWire.detail(api.detail(id).readJson()).toDomain() }
             }
         }
-        return if (policies.policy.value.optimized) details.run(id, fetch) else fetch()
+        return if (policies.policy.value.optimized && com.adaptivenews.app.experiment.Experiment.bool("dedup", true)) details.run(id, fetch) else fetch()
     }
 
     override fun saved(): Flow<List<ArticleDetail>> =

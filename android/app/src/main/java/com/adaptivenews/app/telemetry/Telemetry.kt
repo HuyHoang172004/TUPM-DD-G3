@@ -47,6 +47,7 @@ class Telemetry(
                     when (command) {
                     is Command.Event -> {
                         writer.appendLine(command.line)
+                        if (com.adaptivenews.app.experiment.Experiment.active) android.util.Log.i("AN_EVENT", command.line)
                         if (++pending >= 16) { writer.flush(); pending = 0 }
                     }
                     is Command.Flush -> {

@@ -1,0 +1,12 @@
+export type Metric = { label: string; unit: string; direction: 'lower' | 'higher' | 'neutral' };
+export type Case = { id: string; title: string; a: Record<string, unknown>; b: Record<string, unknown>; journey: string; note: string };
+export type Method = { id: string; title: string; group: string; description: string; metrics: string[]; cases: Case[]; limitation: string; enabled: boolean };
+export type ArmStats = { n: number; median: number | null; q1: number | null; q3: number | null };
+export type Summary = { A: ArmStats; B: ArmStats; pairs: number; difference: number | null; improvement_pct: number | null; ci95_difference: number[] | null; verdict: string };
+export type Viewport = { left: number; top: number; width: number; height: number };
+export type Trial = { trial_id: string; repeat: number; arm: string; phase: string; status: string; config: Record<string, unknown>; config_hash: string; metrics: Record<string, number | null>; notes?: string[]; video_finalized: boolean; capture?: { width?: number; height?: number; viewport?: Viewport; host_started_monotonic?: number } };
+export type Run = { id: string; method_id: string; case_id: string; device_serial: string; network: string; mode: string; status: string; created_at: string; trials: Trial[]; summary: Record<string, Summary>; error: string | null; metadata: Record<string, unknown> };
+export type Preflight = { ready: boolean; checks: { id: string; title: string; ok: boolean; detail: string }[]; devices: { serial: string; api_level: number; avd: string; bridge_ready: boolean; benchmark_installed: boolean }[] };
+export type Action = { action: string; state: string; x?: number; y?: number; x2?: number; y2?: number; host_received_monotonic?: number; error?: string };
+export type Progress = { id: number; type: string; host_monotonic: number; trial?: Trial; trial_id?: string; data?: Action & { event?: string; value?: number; attrs?: Record<string, unknown> }; status?: string; error?: string; summary?: Record<string, Summary>; pss_kib?: number };
+export const terminal = (status?: string) => ['completed', 'failed', 'cancelled', 'incomplete'].includes(status ?? '');

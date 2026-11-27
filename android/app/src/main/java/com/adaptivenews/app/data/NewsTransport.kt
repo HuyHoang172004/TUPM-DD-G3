@@ -62,6 +62,7 @@ internal class NewsTransport(
                     "request_end", elapsed, "ms", mapOf(
                         "request_id" to requestId,
                         "kind" to kind,
+                        "url_path" to path,
                         "status" to status,
                         "bytes_body" to bytes,
                         "cache_source" to trace.cacheSource,
@@ -92,9 +93,11 @@ internal class NewsTransport(
             val builder = original.newBuilder().tag(Trace::class.java, trace)
             when {
                 !policy.allowNetwork -> builder.cacheControl(CacheControl.FORCE_CACHE)
-                !policy.optimized -> builder.cacheControl(uncached)
+                !policy.optimized || !com.adaptivenews.app.experiment.Experiment.bool("http_cache", true) -> builder.cacheControl(uncached)
             }
             trace.dispatchedAt = monotonicMillis()
+            if (com.adaptivenews.app.experiment.Experiment.active) telemetry.emit("request_started", null, null,
+                mapOf("request_id" to requestId, "kind" to kind, "active" to gate.activeCount()))
             val response = chain.proceed(builder.build())
             trace.responseCode = response.code
             trace.cacheSource = when {

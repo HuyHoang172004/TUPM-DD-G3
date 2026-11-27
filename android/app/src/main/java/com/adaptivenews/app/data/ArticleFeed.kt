@@ -19,6 +19,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -52,6 +55,7 @@ class ArticleFeed(
     fun paged(
         queries: Flow<String> = flowOf(""),
         refreshes: Flow<Unit> = emptyFlow(),
+        onQuery: (String) -> Unit = {},
     ): Flow<PagingData<ArticleSummary>> = results(queries, refreshes) { query ->
         val size = policies.policy.value.pageSize
         Pager(
@@ -65,18 +69,31 @@ class ArticleFeed(
         ) {
             // A native Paging refresh also starts a new source and reads the current policy.
             ArticlePagingSource(repository, query, policies.policy.value.pageSize)
-        }.flow
+        }.flow.onEach { onQuery(query) }
     }
 
     private fun <T> results(
         queries: Flow<String>,
         refreshes: Flow<Unit>,
         load: (String) -> Flow<T>,
-    ): Flow<T> = queries.map(String::trim)
-        .distinctUntilChanged()
-        .debounce(300)
-        .flatMapLatest { query -> refreshes.onStart { emit(Unit) }.flatMapLatest { load(query) } }
+    ): Flow<T> {
+        var latest = ""
+        return queries.map(String::trim)
+        .onEach { latest = it }
+        .let { if (com.adaptivenews.app.experiment.Experiment.bool("distinct_queries", true)) it.distinctUntilChanged() else it }
+        .debounce { query ->
+            if (com.adaptivenews.app.experiment.Experiment.isolated && query.isEmpty()) 0L
+            else com.adaptivenews.app.experiment.Experiment.int("debounce_ms", 300).toLong()
+        }
+        .let { source ->
+            if (com.adaptivenews.app.experiment.Experiment.bool("cancel_previous", true))
+                source.flatMapLatest { query -> refreshes.onStart { emit(Unit) }.flatMapLatest { load(query) } }
+            else source.flatMapMerge { query ->
+                refreshes.onStart { emit(Unit) }.flatMapLatest { load(query) }.filter { query == latest }
+            }
+        }
         .buffer(0)
+    }
 }
 
 private data class CursorKey(val cursor: String?, val position: Int)

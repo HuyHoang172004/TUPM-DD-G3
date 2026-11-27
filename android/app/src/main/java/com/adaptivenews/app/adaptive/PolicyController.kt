@@ -25,7 +25,7 @@ class PolicyController(
 ) : PolicyProvider {
     private val engine = AdaptiveEngine(variant)
     private val initial = ResourceSnapshot(0, MemoryPressure.UNKNOWN, null, null, Thermal.UNKNOWN, LinkQuality.UNKNOWN, null)
-    private val mutablePolicy = MutableStateFlow(engine.evaluate(initial))
+    private val mutablePolicy = MutableStateFlow(com.adaptivenews.app.experiment.Experiment.policy(engine.evaluate(initial)))
     override val policy: StateFlow<Policy> = mutablePolicy
     private val mutableSnapshot = MutableStateFlow<ResourceSnapshot?>(null)
     val snapshot: StateFlow<ResourceSnapshot?> = mutableSnapshot
@@ -45,11 +45,11 @@ class PolicyController(
         }
     }
 
-    fun inject(snapshot: ResourceSnapshot) {
+    fun inject(snapshot: ResourceSnapshot, repeat: Boolean = true) {
         simulatedJob?.cancel()
         simulated = snapshot
         apply(snapshot.copy(elapsedMs = SystemClock.elapsedRealtime()), "simulated")
-        if (foreground) startSimulatedLoop()
+        if (foreground && repeat) startSimulatedLoop()
     }
 
     fun setForeground(value: Boolean) {
@@ -80,7 +80,7 @@ class PolicyController(
         mutableSource.value = source
         telemetry.snapshot(snapshot, source)
         val started = SystemClock.elapsedRealtimeNanos()
-        val next = engine.evaluate(snapshot)
+        val next = com.adaptivenews.app.experiment.Experiment.policy(engine.evaluate(snapshot))
         val durationMs = (SystemClock.elapsedRealtimeNanos() - started) / 1_000_000.0
         val old = mutablePolicy.value
         val changed = old.copy(reason = next.reason) != next

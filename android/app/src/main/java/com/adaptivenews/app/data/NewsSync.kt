@@ -43,6 +43,7 @@ internal class NewsSyncWorker(
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result = try {
         repository.syncFirstBatch()
+        com.adaptivenews.app.experiment.ExperimentRuntime.telemetry?.record("worker_end", attrs = mapOf("success" to true))
         Result.success()
     } catch (failure: NewsHttpException) {
         if (failure.status >= 500) retryBounded() else Result.failure()

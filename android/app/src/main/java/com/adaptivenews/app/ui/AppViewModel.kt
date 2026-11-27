@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancel
+import com.adaptivenews.app.experiment.Experiment
 
 enum class AppScreen { FEED, SEARCH, DETAIL, SAVED, LAB }
 
@@ -30,6 +32,9 @@ class AppViewModel(
     val telemetry: Telemetry,
     val variant: Variant
 ) : ViewModel() {
+    val useEager = Experiment.paging?.not() ?: (variant == Variant.V1)
+    private val feedStartedAt = SystemClock.elapsedRealtime()
+    private var feedReported = false
     private val repository: NewsRepository = newsData.repository
     private val mutableScreen = MutableStateFlow(AppScreen.FEED)
     val screen: StateFlow<AppScreen> = mutableScreen
@@ -41,8 +46,7 @@ class AppViewModel(
     private val refreshes = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     private var presentedQuery = ""
     val pagedItems: Flow<PagingData<ArticleSummary>> =
-        newsData.feed.paged(activeQueryFlow, refreshes)
-            .onEach { presentedQuery = activeQueryFlow.value }
+        newsData.feed.paged(activeQueryFlow, refreshes, onQuery = { presentedQuery = it })
             .cachedIn(viewModelScope)
     private var prefetcher = newsData.prefetcher(viewModelScope)
     private var prefetchPaused = false
@@ -66,7 +70,7 @@ class AppViewModel(
 
     init {
         viewModelScope.launch { repository.saved().collect { mutableSaved.value = it } }
-        if (variant == Variant.V1) refresh("")
+        if (useEager) refresh("")
     }
 
     fun navigate(target: AppScreen) {
@@ -77,30 +81,31 @@ class AppViewModel(
     }
 
     fun setQuery(value: String) {
+        if (Experiment.active) telemetry.record("query_input", attrs = mapOf("text" to value))
         mutableQuery.value = value
         searchStartedAt = SystemClock.elapsedRealtime()
         searchJob?.cancel()
-        if (variant != Variant.V1) {
+        if (!useEager) {
             activeQuery = value.trim()
-            activeQueryFlow.value = activeQuery
+            activeQueryFlow.value = if (Experiment.isolated) value else activeQuery
             return
         }
         searchJob = viewModelScope.launch {
-            delay(300)
+            delay(Experiment.int("debounce_ms", 300).toLong())
             val normalized = value.trim()
             if (normalized != activeQuery) refresh(normalized)
         }
     }
 
     fun refresh(query: String = activeQuery) {
-        if (variant != Variant.V1) {
+        if (!useEager) {
             activeQuery = query.trim()
             if (activeQueryFlow.value == activeQuery) refreshes.tryEmit(Unit)
             else activeQueryFlow.value = activeQuery
             return
         }
         generation++
-        pageJob?.cancel()
+        if (Experiment.bool("cancel_previous", true)) pageJob?.cancel()
         activeQuery = query.trim()
         nextCursor = null
         hasFirstPage = false
@@ -111,7 +116,7 @@ class AppViewModel(
     }
 
     fun loadMore() {
-        if (variant != Variant.V1) return
+        if (!useEager) return
         if (mutableLoading.value || hasFirstPage && nextCursor == null) return
         mutableLoading.value = true
         val requestGeneration = generation
@@ -123,17 +128,8 @@ class AppViewModel(
                     if (requestGeneration != generation) return@launch
                     mutableItems.value = mutableItems.value + page.items
                     nextCursor = page.nextCursor
-                    if (!hasFirstPage && requestQuery.isNotEmpty()) {
-                        searchStartedAt?.let { started ->
-                            telemetry.record("search_ready", mode = controller.policy.value.mode.name,
-                                source = "real",
-                                value = SystemClock.elapsedRealtime() - started, unit = "ms",
-                                attrs = mapOf("query" to requestQuery))
-                        }
-                        searchStartedAt = null
-                    }
                     hasFirstPage = true
-                } while (variant == Variant.V1 && nextCursor != null)
+                } while (useEager && nextCursor != null)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -145,8 +141,22 @@ class AppViewModel(
     }
 
     fun onPagedReady() {
+        if (presentedQuery == activeQuery) reportSearchReady()
+    }
+
+    fun onEagerPresented() {
+        onFeedPresented()
+        reportSearchReady()
+    }
+
+    fun onFeedPresented() {
+        if (activeQuery.isEmpty()) reportFeedReady()
+    }
+
+    private fun reportSearchReady() {
         val started = searchStartedAt ?: return
-        if (activeQuery.isEmpty() || presentedQuery != activeQuery) return
+        if (activeQuery.isEmpty()) return
+        if (Experiment.active) com.adaptivenews.app.experiment.ExperimentRuntime.readyQuery = activeQuery
         searchStartedAt = null
         telemetry.record("search_ready", mode = controller.policy.value.mode.name,
             value = SystemClock.elapsedRealtime() - started, unit = "ms",
@@ -154,7 +164,7 @@ class AppViewModel(
     }
 
     fun updatePrefetch(upcoming: List<ArticleSummary>) {
-        if (!prefetchPaused && variant != Variant.V1 &&
+        if (!prefetchPaused && !useEager &&
             (mutableScreen.value == AppScreen.FEED || mutableScreen.value == AppScreen.SEARCH)) {
             prefetcher.update(upcoming)
         }
@@ -199,6 +209,17 @@ class AppViewModel(
     }
 
     fun retryDetail() { selectedArticleId?.let(::openArticle) }
+
+    fun endExperiment() {
+        check(Experiment.active)
+        viewModelScope.cancel()
+    }
+
+    private fun reportFeedReady() {
+        if (feedReported || !Experiment.active) return
+        feedReported = true
+        telemetry.record("feed_ready", value = SystemClock.elapsedRealtime()-feedStartedAt, unit = "ms")
+    }
 
     fun toggleSave() {
         val article = mutableDetail.value ?: return

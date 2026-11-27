@@ -103,7 +103,8 @@ def create_app(dataset_dir=None):
         )
 
     @application.get("/health")
-    def health():
+    def health(response: Response):
+        response.headers["X-Adaptive-News-Dataset"] = application.state.dataset_hash
         return {"status": "ok"}
 
     @application.get("/v1/articles")

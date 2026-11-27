@@ -17,6 +17,7 @@ object ImageLoaderHolder {
         if (loader == null || budget != memoryCacheBytes || calls !== imageCalls) {
             loader?.shutdown()
             val builder = ImageLoader.Builder(context.applicationContext)
+            if (com.adaptivenews.app.experiment.Experiment.isolated) builder.diskCache(null)
             if (memoryCacheBytes > 0) {
                 builder.memoryCache { MemoryCache.Builder().maxSizeBytes(memoryCacheBytes).build() }
             }

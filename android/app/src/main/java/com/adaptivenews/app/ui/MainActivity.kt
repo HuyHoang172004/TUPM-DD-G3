@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.adaptivenews.app.BuildConfig
+import com.adaptivenews.app.experiment.Experiment
+import com.adaptivenews.app.experiment.ExperimentRuntime
 import com.adaptivenews.app.adaptive.PolicyController
 import com.adaptivenews.app.core.contract.Variant
 import com.adaptivenews.app.platform.AndroidResourceMonitor
@@ -34,6 +36,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Experiment.load(applicationContext)
         val prefs = getSharedPreferences("lab", MODE_PRIVATE)
         val benchmark = BuildConfig.BUILD_TYPE == "benchmark"
         val variantExtra = if (benchmark) intent.getStringExtra("variant") else null
@@ -64,6 +67,12 @@ class MainActivity : ComponentActivity() {
             "reset_mode" to (metadataExtra("reset_mode") ?: if (automatedRun) null else "manual"),
         )
         telemetry = Telemetry(applicationContext, ProcessTelemetryScope.scope, runId, scenarioId, variant)
+        if (Experiment.active) {
+            ExperimentRuntime.telemetry = telemetry
+            ExperimentRuntime.compositions.set(0)
+            telemetry.record("experiment_config", attrs = Experiment.config.keys().asSequence().associateWith { Experiment.config.get(it) })
+            telemetry.record("measure_start")
+        }
         monitor = AndroidResourceMonitor(applicationContext, activityScope)
         controller = PolicyController(monitor, telemetry, activityScope, variant)
         val newsData = RepositoryBinding.bind(applicationContext, controller, monitor, telemetry, activityScope)
@@ -74,6 +83,7 @@ class MainActivity : ComponentActivity() {
                 AppViewModel(newsData, controller, telemetry, variant) as T
         }
         viewModel = ViewModelProvider(this, factory)[AppViewModel::class.java]
+        if (Experiment.active) ExperimentRuntime.viewModel = viewModel
         telemetry.record("run_start", attrs = runIdentity + mapOf(
             "status" to "started",
             "dataset" to "backend",
@@ -119,7 +129,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() { controller.setForeground(false); monitor.stop(); super.onStop() }
     override fun onTrimMemory(level: Int) { super.onTrimMemory(level); if (::monitor.isInitialized) monitor.onTrimMemory(level) }
     override fun onDestroy() {
-        telemetry.record("run_end", attrs = runIdentity + mapOf(
+        if (!Experiment.active) telemetry.record("run_end", attrs = runIdentity + mapOf(
             "status" to "finished", "ended_utc" to Instant.now().toString()))
         RepositoryBinding.unbind(telemetry)
         activityScope.cancel()
