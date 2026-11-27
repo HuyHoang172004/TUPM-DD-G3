@@ -1,0 +1,14 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 120000 Realtime: 120000
+
+** MEMINFO in pid 4321 [com.adaptivenews.app] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    42100    42050       12        0    45200    65536    51200    14336
+  Dalvik Heap    58400    58320       40        0    62100    98304    82000    16304
+        TOTAL   148480   132100    11200        0   185000   163840   133200    30640
+
+---
+** MEMINFO in pid 4321 [com.adaptivenews.app] **
+        TOTAL   163840   145000    12000        0   201000   163840   140000    23840

@@ -1,0 +1,146 @@
+{
+  "total_runs": 11,
+  "comparisons": [
+    {
+      "scenario_id": "S1",
+      "cache_state": "cold",
+      "context_source": "real",
+      "commit": "uncommitted",
+      "device": "sdk_gphone16k_x86_64",
+      "api_level": "37",
+      "rq1_v2_vs_v1": {
+        "startup_ms_improvement_pct": 29.82,
+        "frame_p95_ms_improvement_pct": -46.75,
+        "peak_pss_mib_improvement_pct": 7.83,
+        "request_p50_ms_improvement_pct": -172.73,
+        "request_p95_ms_improvement_pct": -1586.57,
+        "image_p95_ms_improvement_pct": 25.16,
+        "network_body_bytes_improvement_pct": 93.86,
+        "jank_delta_pp": -13.02
+      },
+      "rq2_v3_vs_v2": {
+        "startup_ms_improvement_pct": -1.09,
+        "frame_p95_ms_improvement_pct": -3.54,
+        "peak_pss_mib_improvement_pct": -22.17,
+        "request_p50_ms_improvement_pct": 43.33,
+        "request_p95_ms_improvement_pct": 19.88,
+        "image_p95_ms_improvement_pct": 15.31,
+        "network_body_bytes_improvement_pct": 0.0,
+        "prefetch_waste_pct_improvement_pct": 0.0,
+        "jank_delta_pp": 0.25
+      },
+      "guardrails_v3_vs_v2": {
+        "resource_saving_ge_15pct": false,
+        "jank_increase_le_2pp": true,
+        "latency_p95_increase_le_10pct": true
+      }
+    },
+    {
+      "scenario_id": "S2",
+      "cache_state": "cold",
+      "context_source": "real",
+      "commit": "uncommitted",
+      "device": "sdk_gphone16k_x86_64",
+      "api_level": "37",
+      "rq1_v2_vs_v1": {
+        "frame_p95_ms_improvement_pct": 5.0,
+        "peak_pss_mib_improvement_pct": 2.01,
+        "request_p50_ms_improvement_pct": 18.18,
+        "request_p95_ms_improvement_pct": 57.59,
+        "image_p95_ms_improvement_pct": 18.12,
+        "network_body_bytes_improvement_pct": 80.78,
+        "jank_delta_pp": 8.46
+      },
+      "rq2_v3_vs_v2": {
+        "frame_p95_ms_improvement_pct": -26.32,
+        "peak_pss_mib_improvement_pct": -1.66,
+        "request_p50_ms_improvement_pct": 0.0,
+        "request_p95_ms_improvement_pct": -106.32,
+        "image_p95_ms_improvement_pct": 16.59,
+        "network_body_bytes_improvement_pct": 0.0,
+        "prefetch_waste_pct_improvement_pct": 0.0,
+        "jank_delta_pp": -0.4
+      },
+      "guardrails_v3_vs_v2": {
+        "resource_saving_ge_15pct": false,
+        "jank_increase_le_2pp": true,
+        "latency_p95_increase_le_10pct": false
+      }
+    },
+    {
+      "scenario_id": "S3",
+      "cache_state": "cold",
+      "context_source": "real",
+      "commit": "uncommitted",
+      "device": "sdk_gphone16k_x86_64",
+      "api_level": "37",
+      "rq1_v2_vs_v1": {},
+      "rq2_v3_vs_v2": {},
+      "guardrails_v3_vs_v2": {
+        "resource_saving_ge_15pct": false,
+        "jank_increase_le_2pp": null,
+        "latency_p95_increase_le_10pct": null
+      }
+    },
+    {
+      "scenario_id": "S3",
+      "cache_state": "cold",
+      "context_source": "simulated",
+      "commit": "uncommitted",
+      "device": "sdk_gphone16k_x86_64",
+      "api_level": "37",
+      "rq1_v2_vs_v1": {},
+      "rq2_v3_vs_v2": {},
+      "guardrails_v3_vs_v2": {
+        "resource_saving_ge_15pct": null,
+        "jank_increase_le_2pp": null,
+        "latency_p95_increase_le_10pct": null
+      }
+    },
+    {
+      "scenario_id": "S4",
+      "cache_state": "cold",
+      "context_source": "real",
+      "commit": "uncommitted",
+      "device": "sdk_gphone16k_x86_64",
+      "api_level": "37",
+      "rq1_v2_vs_v1": {},
+      "rq2_v3_vs_v2": {},
+      "guardrails_v3_vs_v2": {
+        "resource_saving_ge_15pct": false,
+        "jank_increase_le_2pp": null,
+        "latency_p95_increase_le_10pct": null
+      }
+    },
+    {
+      "scenario_id": "S5",
+      "cache_state": "warm",
+      "context_source": "real",
+      "commit": "uncommitted",
+      "device": "sdk_gphone16k_x86_64",
+      "api_level": "37",
+      "rq1_v2_vs_v1": {},
+      "rq2_v3_vs_v2": {},
+      "guardrails_v3_vs_v2": {
+        "resource_saving_ge_15pct": false,
+        "jank_increase_le_2pp": null,
+        "latency_p95_increase_le_10pct": null
+      }
+    },
+    {
+      "scenario_id": "S6",
+      "cache_state": "warm",
+      "context_source": "simulated",
+      "commit": "uncommitted",
+      "device": "sdk_gphone16k_x86_64",
+      "api_level": "37",
+      "rq1_v2_vs_v1": {},
+      "rq2_v3_vs_v2": {},
+      "guardrails_v3_vs_v2": {
+        "resource_saving_ge_15pct": null,
+        "jank_increase_le_2pp": null,
+        "latency_p95_increase_le_10pct": null
+      }
+    }
+  ]
+}

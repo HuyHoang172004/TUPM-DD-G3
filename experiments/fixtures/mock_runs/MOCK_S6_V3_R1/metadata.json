@@ -1,0 +1,15 @@
+{
+  "is_mock_fixture": true,
+  "run_id": "MOCK_S6_V3_R1",
+  "commit": "fixture_commit_01",
+  "config_hash": "cfg_v3_adaptive",
+  "device": "Fixture_Emulator_API35",
+  "api_level": 35,
+  "scenario_id": "S6",
+  "variant": "V3",
+  "repeat": 1,
+  "cache_state": "warm",
+  "context_source": "simulated",
+  "success": true,
+  "notes": "mock_fixture_only"
+}

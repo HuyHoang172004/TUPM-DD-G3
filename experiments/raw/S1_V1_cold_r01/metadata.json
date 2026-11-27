@@ -1,0 +1,21 @@
+{
+  "is_mock_fixture": false,
+  "is_warmup": false,
+  "run_id": "S1_V1_cold_r01",
+  "commit": "uncommitted",
+  "config_hash": "953d5b3b569823ef",
+  "device": "sdk_gphone16k_x86_64",
+  "api_level": 37,
+  "build_fingerprint": "google/sdk_gphone16k_x86_64/emu64xa16k:17/CP41.260828.004.A7/16296984:user/dev-keys",
+  "scenario_id": "S1",
+  "variant": "V1",
+  "repeat": 1,
+  "cache_state": "cold",
+  "context_source": "real",
+  "network_profile": "fast_20mbps_40ms",
+  "startup_ms": 1432.0,
+  "timestamp_utc": "2026-11-27T08:38:26.069695+00:00",
+  "telemetry_pulled": true,
+  "success": true,
+  "notes": ""
+}

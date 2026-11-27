@@ -1,0 +1,19 @@
+{
+  "is_mock_fixture": true,
+  "run_id": "MOCK_S2_V1_R1",
+  "commit": "fixture_commit_01",
+  "config_hash": "cfg_v1_baseline",
+  "device": "Fixture_Emulator_API35",
+  "api_level": 35,
+  "scenario_id": "S2",
+  "variant": "V1",
+  "repeat": 1,
+  "cache_state": "cold",
+  "context_source": "real",
+  "frame_p95_ms": 14.8,
+  "jank_pct": 4.5,
+  "total_frames": 2400,
+  "janky_frames": 108,
+  "success": true,
+  "notes": "mock_fixture_only"
+}

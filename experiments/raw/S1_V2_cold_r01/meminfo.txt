@@ -1,0 +1,78 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 3050710 Realtime: 3050710
+
+** MEMINFO in pid 2860 [com.adaptivenews.app] **
+                   Pss  Private  Private     Swap      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    34719    34604        0        0    39104    52784    46759     1170
+  Dalvik Heap     6445     5824        0        0    16136     9877     4939     4938
+ Dalvik Other     2934     2876        0        0     3728                           
+        Stack     1604     1604        0        0     1612                           
+    Other dev       14        0       12        0      344                           
+     .so mmap     3200      596        8        0    48928                           
+    .jar mmap     1390        0        0        0    32628                           
+    .apk mmap      137        0        0        0     1324                           
+    .ttf mmap      220        0      220        0      220                           
+    .dex mmap      134        0      128        0      552                           
+    .oat mmap      485        0        0        0    12096                           
+    .art mmap      964      424        0        0    23296                           
+   Other mmap       88       68        0        0     1216                           
+        Memfd        0        0        0        0        4                           
+      Unknown      641      624        0        0     2108                           
+        TOTAL    52975    46620      368        0   183296    62661    51698     6108
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:     6248                          39432
+         Native Heap:    34604                          39104
+                Code:      956                          95828
+               Stack:     1604                           1612
+            Graphics:        0                              0
+       Private Other:     3576
+              System:     5987
+             Unknown:                                    7320
+ 
+           TOTAL PSS:    52975            TOTAL RSS:   183296      TOTAL SWAP (KB):        0
+ 
+ Objects
+               Views:        6         ViewRootImpl:        1
+         AppContexts:        5           Activities:        1
+              Assets:       22        AssetManagers:        0
+       Local Binders:       22        Proxy Binders:       59
+       Parcel memory:       13         Parcel count:       45
+    Death Recipients:        0             WebViews:        0
+ 
+ Native Allocations
+                         Count                       Total(kB)
+                        ------                         ------
+    Other (malloced):      489                             45
+ Other (nonmalloced):       87                             64
+Bitmap (nonmalloced):        6                           1940
+    Other (malloced):        6                              0
+ 
+ Shared Bitmaps
+                         Count                       Size(KB)
+                        ------                         ------
+              Mapped:        0                              0
+  (Enable debug.hwui.bitmap_ashmem_long_name sysprop to count unique bitmap allocations)
+ 
+ SQL
+         MEMORY_USED:      481
+  PAGECACHE_OVERFLOW:      219          MALLOC_SIZE:       46
+ 
+ DATABASES
+      pgsz     dbsz   Lookaside(b) cache hits cache misses cache size  Dbname
+PER CONNECTION STATS
+         4       28             12     5    53     1  /data/user/0/com.adaptivenews.app/databases/news.db
+         4        8                    0     0     0    (attached) temp
+         4       28             29     3    21     1  /data/user/0/com.adaptivenews.app/databases/news.db (1)
+         4      104             14    28   118     1  /data/user/0/com.adaptivenews.app/no_backup/androidx.work.workdb
+         4        8                    0     0     0    (attached) temp
+         4      104             20     9    24     1  /data/user/0/com.adaptivenews.app/no_backup/androidx.work.workdb (2)
+POOL STATS
+     cache hits  cache misses    cache size  Dbname
+              8            78             2  /data/user/0/com.adaptivenews.app/databases/news.db
+             37           146             2  /data/user/0/com.adaptivenews.app/no_backup/androidx.work.workdb
+ 
